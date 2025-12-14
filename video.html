@@ -34,17 +34,24 @@
 
     <script>
 if ('serviceWorker' in navigator && window.isSecureContext) {
-  navigator.serviceWorker.register('/coi-serviceworker.min.js').then(() => {
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: 'coi-cs' });
-    }
-  });
+  navigator.serviceWorker
+    .register('/coi-serviceworker.min.js?v=1000')
+    .then(() => {
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({ type: 'coi-cs' });
+      }
+    })
+    .catch(err => {
+      console.error('SW register failed:', err);
+    });
 }
 </script>
+
 
 </body>
 
 </html>
+
 
 
 
