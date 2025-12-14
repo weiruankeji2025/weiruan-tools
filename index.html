@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JPG 转 PNG 工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>🖼️ 图片格式转换器</h1>
+    
+    <div class="container">
+        <p>选择一张 JPG 图片，工具将自动将其转换为无损 PNG 格式。</p>
+        
+        <input type="file" id="upload" accept="image/jpeg, image/jpg">
+        
+        <canvas id="canvas" style="display:none;"></canvas>
+        
+        <img id="preview" alt="预览将在这里显示" style="display:none;">
+        
+        <br>
+        <a id="downloadLink" class="btn" style="display:none;">下载 PNG</a>
+    </div>
+
+    <script>
+        const upload = document.getElementById('upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const preview = document.getElementById('preview');
+        const downloadLink = document.getElementById('downloadLink');
+
+        upload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = (event) => {
+                img.src = event.target.result;
+            };
+
+            img.onload = () => {
+                // 设置画布尺寸与原图一致
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                // 绘制图片
+                ctx.drawImage(img, 0, 0);
+                
+                // 转换为 PNG DataURL
+                const pngUrl = canvas.toDataURL('image/png');
+                
+                // 显示预览
+                preview.src = pngUrl;
+                preview.style.display = 'block';
+
+                // 设置下载按钮信息
+                downloadLink.href = pngUrl;
+                // 生成新文件名：原文件名去掉后缀 + _converted.png
+                downloadLink.download = file.name.replace(/\.(jpg|jpeg)$/i, '') + '_converted.png';
+                downloadLink.style.display = 'inline-block';
+                downloadLink.textContent = '下载 PNG (' + (pngUrl.length/1024).toFixed(0) + 'KB)';
+            };
+
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

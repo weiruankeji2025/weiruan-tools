@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频 转 GIF 工具</title>
+    
+    <link rel="stylesheet" href="style.css">
+
+    <script src="coi-serviceworker.min.js"></script>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+</head>
+<body>
+
+    <h1>🎬 视频转 GIF 工具</h1>
+
+    <div class="container">
+        <p>将 MP4 视频转换为 GIF 动图。处理在本地进行，保护隐私。</p>
+
+        <input type="file" id="uploader" accept="video/mp4, video/webm">
+        
+        <br>
+        
+        <button id="convertBtn" class="btn" disabled>正在加载核心...</button>
+        
+        <p id="message">正在初始化 FFmpeg 引擎，请稍候...</p>
+        
+        <img id="outputImage" style="display:none; border: 2px solid #eee;">
+    </div>
+
+    <script>
+        const { createFFmpeg, fetchFile } = FFmpeg;
+        // 创建 ffmpeg 实例
+        const ffmpeg = createFFmpeg({ log: true });
+
+        const init = async () => {
+            try {
+                await ffmpeg.load();
+                document.getElementById('message').innerText = '核心加载完毕，请选择视频并点击转换。';
+                const btn = document.getElementById('convertBtn');
+                btn.innerText = '开始转换';
+                btn.disabled = false; // 启用按钮
+            } catch (error) {
+                console.error(error);
+                document.getElementById('message').innerText = '加载失败，请检查浏览器是否支持 SharedArrayBuffer (需要 https 环境或 localhost)。';
+            }
+        };
+
+        const convert = async () => {
+            const files = document.getElementById('uploader').files;
+            const msg = document.getElementById('message');
+            const outputImg = document.getElementById('outputImage');
+
+            if (files.length === 0) {
+                alert("请先选择一个视频文件！");
+                return;
+            }
+
+            // 禁用按钮防止重复点击
+            document.getElementById('convertBtn').disabled = true;
+            document.getElementById('convertBtn').innerText = '转换中...';
+            msg.innerText = '正在处理视频帧，请勿关闭页面...';
+            
+            outputImg.style.display = 'none'; // 隐藏旧图片
+
+            const file = files[0];
+            const fileName = 'input.mp4';
+
+            try {
+                // 1. 将文件写入 FFmpeg 内存文件系统
+                ffmpeg.FS('writeFile', fileName, await fetchFile(file));
+
+                // 2. 运行转换命令
+                // 参数解释：
+                // -i: 输入文件
+                // -t 5: 只截取前5秒 (防止过大，你可以去掉这个参数转换全长)
+                // -vf fps=10,scale=320:-1 : 帧率设为10，宽度缩放到320(高度自适应)，减小体积
+                await ffmpeg.run('-i', fileName, '-t', '5', '-vf', 'fps=10,scale=320:-1', '-f', 'gif', 'output.gif');
+
+                // 3. 读取生成的文件
+                const data = ffmpeg.FS('readFile', 'output.gif');
+
+                // 4. 创建 URL 并显示
+                const url = URL.createObjectURL(new Blob([data.buffer], { type: 'image/gif' }));
+                outputImg.src = url;
+                outputImg.style.display = 'block';
+                
+                msg.innerText = '转换成功！👇下方图片可右键保存。';
+            } catch (e) {
+                console.error(e);
+                msg.innerText = '转换出错，请查看控制台日志。';
+            } finally {
+                // 恢复按钮状态
+                document.getElementById('convertBtn').disabled = false;
+                document.getElementById('convertBtn').innerText = '再次转换';
+            }
+        }
+
+        document.getElementById('convertBtn').addEventListener('click', convert);
+        
+        init();
+    </script>
+</body>
+</html>
