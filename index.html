@@ -356,7 +356,7 @@
             }
         });
 
-        function convertVideoToGif() {
+        async function convertVideoToGif() {
             if (!currentVideo) return;
             const startTime = parseFloat(document.getElementById('startTime').value);
             const duration = parseFloat(document.getElementById('duration').value);
@@ -367,54 +367,89 @@
             document.getElementById('convertToGif').disabled = true;
 
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             const videoAspect = currentVideo.videoWidth / currentVideo.videoHeight;
             canvas.width = width;
             canvas.height = Math.round(width / videoAspect);
 
-            const gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: canvas.width,
-                height: canvas.height,
-                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-            });
+            const frameCount = Math.min(Math.floor(duration * fps), 100);
+            const frames = [];
 
-            const frameCount = Math.floor(duration * fps);
-            const frameDelay = 1000 / fps;
-            let currentFrame = 0;
-
-            function captureFrame() {
-                if (currentFrame >= frameCount) {
-                    gif.render();
-                    return;
-                }
-                const time = startTime + (currentFrame / fps);
+            // 捕获所有帧
+            for (let i = 0; i < frameCount; i++) {
+                const time = startTime + (i / fps);
                 currentVideo.currentTime = time;
-                currentVideo.onseeked = function() {
-                    ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
-                    gif.addFrame(canvas, {delay: frameDelay, copy: true});
-                    currentFrame++;
-                    const progress = Math.round((currentFrame / frameCount) * 100);
-                    document.getElementById('gifProgressFill').style.width = progress + '%';
-                    document.getElementById('gifProgressFill').textContent = progress + '%';
-                    setTimeout(captureFrame, 10);
-                };
+                
+                await new Promise(resolve => {
+                    currentVideo.onseeked = resolve;
+                });
+
+                ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
+                
+                // 转换为blob
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/png');
+                });
+                frames.push(blob);
+
+                const progress = Math.round(((i + 1) / frameCount) * 50);
+                document.getElementById('gifProgressFill').style.width = progress + '%';
+                document.getElementById('gifProgressFill').textContent = progress + '%';
             }
 
-            gif.on('finished', function(blob) {
-                convertedGif = blob;
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(blob);
-                img.style.maxWidth = '100%';
-                document.getElementById('gifPreview').innerHTML = '';
-                document.getElementById('gifPreview').appendChild(img);
-                document.getElementById('gifResult').classList.add('show');
+            // 使用GIF.js生成
+            document.getElementById('gifProgressFill').textContent = '生成GIF中...';
+            
+            try {
+                const gif = new GIF({
+                    workers: 2,
+                    quality: 10,
+                    width: canvas.width,
+                    height: canvas.height,
+                    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
+                    background: '#fff'
+                });
+
+                const frameDelay = Math.round(1000 / fps);
+
+                for (let i = 0; i < frames.length; i++) {
+                    const img = await createImageBitmap(frames[i]);
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0);
+                    gif.addFrame(tempCtx, {delay: frameDelay, copy: true});
+                    
+                    const progress = 50 + Math.round(((i + 1) / frames.length) * 30);
+                    document.getElementById('gifProgressFill').style.width = progress + '%';
+                }
+
+                gif.on('finished', function(blob) {
+                    convertedGif = blob;
+                    const resultImg = document.createElement('img');
+                    resultImg.src = URL.createObjectURL(blob);
+                    resultImg.style.maxWidth = '100%';
+                    document.getElementById('gifPreview').innerHTML = '';
+                    document.getElementById('gifPreview').appendChild(resultImg);
+                    document.getElementById('gifResult').classList.add('show');
+                    document.getElementById('gifProgress').style.display = 'none';
+                    document.getElementById('convertToGif').disabled = false;
+                });
+
+                gif.on('progress', function(p) {
+                    const progress = 80 + Math.round(p * 20);
+                    document.getElementById('gifProgressFill').style.width = progress + '%';
+                    document.getElementById('gifProgressFill').textContent = '最后处理 ' + Math.round(p * 100) + '%';
+                });
+
+                gif.render();
+
+            } catch (error) {
+                alert('GIF生成失败: ' + error.message + '\n建议: 减少持续时间或降低帧率');
                 document.getElementById('gifProgress').style.display = 'none';
                 document.getElementById('convertToGif').disabled = false;
-            });
-
-            captureFrame();
+            }
         }
 
         function downloadGif() {
