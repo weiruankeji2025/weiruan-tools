@@ -7,74 +7,34 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 40px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
         }
-
         .tool-card {
             background: white;
             border-radius: 15px;
             padding: 25px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
-
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .tool-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .tool-card p {
-            color: #666;
-            font-size: 0.9em;
-            line-height: 1.5;
-        }
-
+        .tool-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3); }
+        .tool-card h3 { color: #667eea; margin-bottom: 10px; font-size: 1.3em; }
+        .tool-card p { color: #666; font-size: 0.9em; line-height: 1.5; }
         .converter-section {
             background: white;
             border-radius: 15px;
@@ -82,17 +42,7 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             display: none;
         }
-
-        .converter-section.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        .converter-section.active { display: block; }
         .back-btn {
             background: #667eea;
             color: white;
@@ -102,31 +52,16 @@
             cursor: pointer;
             font-size: 1em;
             margin-bottom: 20px;
-            transition: background 0.3s ease;
         }
-
-        .back-btn:hover {
-            background: #5568d3;
-        }
-
+        .back-btn:hover { background: #5568d3; }
         .upload-area {
             border: 3px dashed #667eea;
             border-radius: 10px;
             padding: 40px;
             text-align: center;
             margin: 20px 0;
-            transition: all 0.3s ease;
         }
-
-        .upload-area.dragover {
-            background: #f0f4ff;
-            border-color: #5568d3;
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
+        .upload-area input[type="file"] { display: none; }
         .upload-btn {
             background: #667eea;
             color: white;
@@ -135,40 +70,16 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
-            transition: background 0.3s ease;
         }
-
-        .upload-btn:hover {
-            background: #5568d3;
-        }
-
-        .preview-area {
-            margin: 20px 0;
-            text-align: center;
-        }
-
+        .upload-btn:hover { background: #5568d3; }
+        .preview-area { margin: 20px 0; text-align: center; }
         .preview-area img, .preview-area video, .preview-area audio {
             max-width: 100%;
             max-height: 400px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-
-        .preview-area audio {
-            width: 100%;
-        }
-
-        .controls {
-            margin: 20px 0;
-        }
-
-        .controls label {
-            display: block;
-            margin: 10px 0 5px;
-            font-weight: 600;
-            color: #333;
-        }
-
+        .controls { margin: 20px 0; }
+        .controls label { display: block; margin: 10px 0 5px; font-weight: 600; }
         .controls input, .controls select, .controls textarea {
             width: 100%;
             padding: 10px;
@@ -176,13 +87,7 @@
             border-radius: 8px;
             font-size: 1em;
         }
-
-        .controls textarea {
-            min-height: 150px;
-            font-family: inherit;
-            resize: vertical;
-        }
-
+        .controls textarea { min-height: 150px; resize: vertical; }
         .convert-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -193,19 +98,8 @@
             font-size: 1.1em;
             width: 100%;
             margin-top: 20px;
-            transition: transform 0.3s ease;
         }
-
-        .convert-btn:hover:not(:disabled) {
-            transform: scale(1.02);
-        }
-
-        .convert-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
+        .convert-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .result-area {
             margin: 20px 0;
             padding: 20px;
@@ -213,12 +107,7 @@
             border-radius: 10px;
             display: none;
         }
-
-        .result-area.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
+        .result-area.show { display: block; }
         .download-btn {
             background: #28a745;
             color: white;
@@ -226,20 +115,9 @@
             padding: 12px 30px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s ease;
             margin: 5px;
         }
-
-        .download-btn:hover {
-            background: #218838;
-        }
-
-        .progress {
-            margin: 20px 0;
-            display: none;
-        }
-
+        .progress { margin: 20px 0; display: none; }
         .progress-bar {
             width: 100%;
             height: 30px;
@@ -247,45 +125,23 @@
             border-radius: 15px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: width 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
         }
-
-        .progress-text {
-            text-align: center;
-            margin-top: 10px;
-            color: #666;
-            font-size: 0.9em;
-        }
-
         .image-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 10px;
             margin: 20px 0;
         }
-
-        .image-item {
-            position: relative;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .image-item img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-
+        .image-item { position: relative; border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden; }
+        .image-item img { width: 100%; height: 150px; object-fit: cover; }
         .image-item .remove-btn {
             position: absolute;
             top: 5px;
@@ -297,33 +153,14 @@
             width: 30px;
             height: 30px;
             cursor: pointer;
-            font-size: 1.2em;
-            transition: background 0.3s ease;
         }
-
-        .image-item .remove-btn:hover {
-            background: rgb(200, 35, 51);
-        }
-
-        .footer {
-            text-align: center;
-            color: white;
-            margin-top: 40px;
-            opacity: 0.8;
-        }
-
+        .footer { text-align: center; color: white; margin-top: 40px; opacity: 0.8; }
         .info-box {
             background: #e7f3ff;
             border-left: 4px solid #2196F3;
             padding: 12px;
             margin: 15px 0;
             border-radius: 4px;
-        }
-
-        .info-box p {
-            margin: 5px 0;
-            color: #0066cc;
-            font-size: 0.9em;
         }
     </style>
 </head>
@@ -343,25 +180,13 @@
                 <h3>🖼️ 图片格式转换</h3>
                 <p>JPG、PNG、WEBP等图片格式互转</p>
             </div>
-            <div class="tool-card" onclick="showConverter('video-converter')">
-                <h3>🎥 视频格式转换</h3>
-                <p>MP4、WEBM等视频格式互转</p>
-            </div>
-            <div class="tool-card" onclick="showConverter('audio-converter')">
-                <h3>🎵 音频格式转换</h3>
-                <p>MP3、WAV、OGG等音频格式互转</p>
+            <div class="tool-card" onclick="showConverter('image-compressor')">
+                <h3>🗜️ 图片压缩</h3>
+                <p>压缩图片大小，减少文件体积</p>
             </div>
             <div class="tool-card" onclick="showConverter('images-to-pdf')">
                 <h3>📄 图片转PDF</h3>
                 <p>将多张图片合并为一个PDF文件</p>
-            </div>
-            <div class="tool-card" onclick="showConverter('pdf-to-images')">
-                <h3>🖼️ PDF转图片</h3>
-                <p>将PDF的每一页转换为图片</p>
-            </div>
-            <div class="tool-card" onclick="showConverter('image-compressor')">
-                <h3>🗜️ 图片压缩</h3>
-                <p>压缩图片大小，减少文件体积</p>
             </div>
             <div class="tool-card" onclick="showConverter('text-to-speech')">
                 <h3>🗣️ 文字转语音</h3>
@@ -380,24 +205,14 @@
             </div>
             <div class="preview-area" id="videoPreview"></div>
             <div class="controls" id="gifControls" style="display:none;">
-                <label>起始时间（秒）:</label>
-                <input type="number" id="startTime" value="0" min="0" step="0.1">
-                <label>持续时间（秒）:</label>
-                <input type="number" id="duration" value="3" min="0.1" max="10" step="0.1">
-                <label>帧率 (推荐10):</label>
-                <input type="number" id="fps" value="10" min="5" max="15">
-                <label>宽度（像素）:</label>
-                <input type="number" id="gifWidth" value="480" min="200" max="800">
-                <div class="info-box">
-                    <p>💡 降低帧率和分辨率可以加快转换速度</p>
-                </div>
+                <label>起始时间（秒）: <input type="number" id="startTime" value="0" min="0" step="0.1"></label>
+                <label>持续时间（秒）: <input type="number" id="duration" value="3" min="0.1" max="10" step="0.1"></label>
+                <label>帧率: <input type="number" id="fps" value="10" min="5" max="15"></label>
+                <label>宽度: <input type="number" id="gifWidth" value="480" min="200" max="800"></label>
             </div>
             <button class="convert-btn" id="convertToGif" onclick="convertVideoToGif()" disabled>转换为GIF</button>
             <div class="progress" id="gifProgress">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="gifProgressFill" style="width: 0%">0%</div>
-                </div>
-                <p class="progress-text" id="gifProgressText">准备中...</p>
+                <div class="progress-bar"><div class="progress-fill" id="gifProgressFill" style="width: 0%">0%</div></div>
             </div>
             <div class="result-area" id="gifResult">
                 <h3>✅ 转换完成！</h3>
@@ -417,100 +232,22 @@
             </div>
             <div class="preview-area" id="imagePreview"></div>
             <div class="controls" id="imageControls" style="display:none;">
-                <label>转换为:</label>
-                <select id="imageFormat">
-                    <option value="image/png">PNG</option>
-                    <option value="image/jpeg">JPEG</option>
-                    <option value="image/webp">WEBP</option>
-                </select>
-                <label>质量 (仅JPEG/WEBP): <span id="qualityValue">90%</span></label>
-                <input type="range" id="quality" min="1" max="100" value="90">
+                <label>转换为:
+                    <select id="imageFormat">
+                        <option value="image/png">PNG</option>
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/webp">WEBP</option>
+                    </select>
+                </label>
+                <label>质量: <span id="qualityValue">90%</span>
+                    <input type="range" id="quality" min="1" max="100" value="90">
+                </label>
             </div>
-            <button class="convert-btn" id="convertImage" onclick="convertImage()" disabled>转换图片</button>
+            <button class="convert-btn" onclick="convertImage()" disabled id="convertImageBtn">转换图片</button>
             <div class="result-area" id="imageResult">
                 <h3>✅ 转换完成！</h3>
                 <div id="convertedImagePreview"></div>
                 <button class="download-btn" onclick="downloadImage()">💾 下载图片</button>
-            </div>
-        </div>
-
-        <!-- 视频格式转换 -->
-        <div id="video-converter" class="converter-section">
-            <button class="back-btn" onclick="showTools()">← 返回</button>
-            <h2>视频格式转换</h2>
-            <div class="info-box">
-                <p>⚠️ 浏览器端视频格式转换受限，此处提供预览和下载功能</p>
-            </div>
-            <div class="upload-area">
-                <p>拖放视频文件到这里或点击上传</p>
-                <input type="file" id="videoConvertFile" accept="video/*">
-                <button class="upload-btn" onclick="document.getElementById('videoConvertFile').click()">选择视频</button>
-            </div>
-            <div class="preview-area" id="videoConvertPreview"></div>
-            <button class="convert-btn" id="convertVideo" onclick="convertVideo()" disabled>查看视频</button>
-            <div class="result-area" id="videoConvertResult">
-                <h3>视频信息</h3>
-                <div id="convertedVideoPreview"></div>
-                <button class="download-btn" onclick="downloadVideo()">💾 下载视频</button>
-            </div>
-        </div>
-
-        <!-- 音频格式转换 -->
-        <div id="audio-converter" class="converter-section">
-            <button class="back-btn" onclick="showTools()">← 返回</button>
-            <h2>音频格式转换</h2>
-            <div class="info-box">
-                <p>⚠️ 浏览器端音频格式转换受限，此处提供预览和下载功能</p>
-            </div>
-            <div class="upload-area">
-                <p>拖放音频文件到这里或点击上传</p>
-                <input type="file" id="audioFile" accept="audio/*">
-                <button class="upload-btn" onclick="document.getElementById('audioFile').click()">选择音频</button>
-            </div>
-            <div class="preview-area" id="audioPreview"></div>
-            <button class="convert-btn" id="convertAudio" onclick="convertAudio()" disabled>查看音频</button>
-            <div class="result-area" id="audioResult">
-                <h3>音频信息</h3>
-                <div id="convertedAudioPreview"></div>
-                <button class="download-btn" onclick="downloadAudio()">💾 下载音频</button>
-            </div>
-        </div>
-
-        <!-- 图片转PDF -->
-        <div id="images-to-pdf" class="converter-section">
-            <button class="back-btn" onclick="showTools()">← 返回</button>
-            <h2>图片转PDF</h2>
-            <div class="upload-area">
-                <p>拖放图片文件到这里或点击上传（可选择多张）</p>
-                <input type="file" id="pdfImages" accept="image/*" multiple>
-                <button class="upload-btn" onclick="document.getElementById('pdfImages').click()">选择图片</button>
-            </div>
-            <div class="image-list" id="imageList"></div>
-            <div class="controls" id="pdfControls" style="display:none;">
-                <label>页面方向:</label>
-                <select id="pdfOrientation">
-                    <option value="portrait">竖向</option>
-                    <option value="landscape">横向</option>
-                </select>
-            </div>
-            <button class="convert-btn" id="createPdf" onclick="createPDF()" disabled>生成PDF</button>
-            <div class="result-area" id="pdfResult">
-                <h3>✅ PDF生成完成！</h3>
-                <button class="download-btn" onclick="downloadPDF()">💾 下载PDF</button>
-            </div>
-        </div>
-
-        <!-- PDF转图片 -->
-        <div id="pdf-to-images" class="converter-section">
-            <button class="back-btn" onclick="showTools()">← 返回</button>
-            <h2>PDF转图片</h2>
-            <div class="info-box">
-                <p>⚠️ PDF转图片需要PDF.js库支持，建议使用专业工具</p>
-            </div>
-            <div class="upload-area">
-                <p>拖放PDF文件到这里或点击上传</p>
-                <input type="file" id="pdfFile" accept="application/pdf">
-                <button class="upload-btn" onclick="document.getElementById('pdfFile').click()">选择PDF</button>
             </div>
         </div>
 
@@ -525,17 +262,34 @@
             </div>
             <div class="preview-area" id="compressPreview"></div>
             <div class="controls" id="compressControls" style="display:none;">
-                <label>压缩质量: <span id="compressQualityValue">80%</span></label>
-                <input type="range" id="compressQuality" min="10" max="100" value="80">
-                <label>最大宽度（像素）:</label>
-                <input type="number" id="maxWidth" value="1920" min="100" max="4000">
+                <label>质量: <span id="compressQualityValue">80%</span>
+                    <input type="range" id="compressQuality" min="10" max="100" value="80">
+                </label>
+                <label>最大宽度: <input type="number" id="maxWidth" value="1920" min="100" max="4000"></label>
             </div>
-            <button class="convert-btn" id="compressBtn" onclick="compressImage()" disabled>压缩图片</button>
+            <button class="convert-btn" onclick="compressImageFunc()" disabled id="compressBtnEl">压缩图片</button>
             <div class="result-area" id="compressResult">
                 <h3>✅ 压缩完成！</h3>
-                <p id="compressionInfo" style="font-weight: bold; color: #28a745;"></p>
+                <p id="compressionInfo"></p>
                 <div id="compressedPreview"></div>
-                <button class="download-btn" onclick="downloadCompressed()">💾 下载压缩图片</button>
+                <button class="download-btn" onclick="downloadCompressed()">💾 下载</button>
+            </div>
+        </div>
+
+        <!-- 图片转PDF -->
+        <div id="images-to-pdf" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>图片转PDF</h2>
+            <div class="upload-area">
+                <p>选择多张图片</p>
+                <input type="file" id="pdfImages" accept="image/*" multiple>
+                <button class="upload-btn" onclick="document.getElementById('pdfImages').click()">选择图片</button>
+            </div>
+            <div class="image-list" id="imageList"></div>
+            <button class="convert-btn" onclick="createPDF()" disabled id="createPdfBtn">生成PDF</button>
+            <div class="result-area" id="pdfResult">
+                <h3>✅ PDF生成完成！</h3>
+                <button class="download-btn" onclick="downloadPDF()">💾 下载PDF</button>
             </div>
         </div>
 
@@ -544,46 +298,37 @@
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>文字转语音</h2>
             <div class="controls">
-                <label>输入文字:</label>
-                <textarea id="ttsText" placeholder="在此输入要转换的文字..."></textarea>
-                <label>语言:</label>
-                <select id="ttsLang">
-                    <option value="zh-CN">中文</option>
-                    <option value="en-US">英语</option>
-                    <option value="ja-JP">日语</option>
-                    <option value="ko-KR">韩语</option>
-                </select>
-                <label>语速: <span id="ttsRateValue">1.0x</span></label>
-                <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+                <label>输入文字: <textarea id="ttsText" placeholder="输入要转换的文字..."></textarea></label>
+                <label>语言:
+                    <select id="ttsLang">
+                        <option value="zh-CN">中文</option>
+                        <option value="en-US">英语</option>
+                        <option value="ja-JP">日语</option>
+                    </select>
+                </label>
+                <label>语速: <span id="ttsRateValue">1.0x</span>
+                    <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+                </label>
             </div>
             <button class="convert-btn" onclick="textToSpeech()">🎙️ 播放语音</button>
-            <button class="convert-btn" onclick="stopSpeech()" style="background: #dc3545; margin-top: 10px;">⏹️ 停止播放</button>
-            <div class="info-box">
-                <p>💡 使用浏览器内置语音合成，效果因浏览器而异</p>
-            </div>
+            <button class="convert-btn" onclick="stopSpeech()" style="background: #dc3545;">⏹️ 停止</button>
         </div>
 
         <div class="footer">
-            <p>🔒 所有转换都在您的浏览器中本地完成，文件不会上传到服务器</p>
-            <p>威软科技© 2025 媒体格式转换工具 | 隐私安全 | 开源免费</p>
+            <p>🔒 所有转换都在浏览器中本地完成</p>
+            <p>威软科技© 2025 媒体格式转换工具</p>
         </div>
     </div>
 
     <script>
-        let currentVideo = null;
-        let currentImage = null;
-        let convertedGif = null;
-        let convertedImage = null;
-        let convertedVideo = null;
-        let pdfImagesList = [];
-        let pdfDoc = null;
+        let currentVideo = null, currentImage = null, convertedGif = null;
+        let convertedImage = null, pdfImagesList = [], pdfDoc = null;
         let compressedImageBlob = null;
 
         function showConverter(id) {
             document.getElementById('toolsGrid').style.display = 'none';
             document.querySelectorAll('.converter-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.result-area').forEach(r => r.classList.remove('show'));
         }
 
         function showTools() {
@@ -591,7 +336,7 @@
             document.getElementById('toolsGrid').style.display = 'grid';
         }
 
-        // ========== 视频转GIF ==========
+        // 视频转GIF
         document.getElementById('videoFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -599,13 +344,10 @@
                 video.src = URL.createObjectURL(file);
                 video.controls = true;
                 video.style.maxWidth = '100%';
-                
                 document.getElementById('videoPreview').innerHTML = '';
                 document.getElementById('videoPreview').appendChild(video);
                 document.getElementById('gifControls').style.display = 'block';
                 document.getElementById('convertToGif').disabled = false;
-                document.getElementById('gifResult').classList.remove('show');
-                
                 currentVideo = video;
                 video.addEventListener('loadedmetadata', function() {
                     document.getElementById('duration').max = Math.min(video.duration, 10);
@@ -616,7 +358,6 @@
 
         function convertVideoToGif() {
             if (!currentVideo) return;
-
             const startTime = parseFloat(document.getElementById('startTime').value);
             const duration = parseFloat(document.getElementById('duration').value);
             const fps = parseInt(document.getElementById('fps').value);
@@ -624,11 +365,9 @@
 
             document.getElementById('gifProgress').style.display = 'block';
             document.getElementById('convertToGif').disabled = true;
-            document.getElementById('gifProgressText').textContent = '正在处理...';
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
             const videoAspect = currentVideo.videoWidth / currentVideo.videoHeight;
             canvas.width = width;
             canvas.height = Math.round(width / videoAspect);
@@ -647,23 +386,18 @@
 
             function captureFrame() {
                 if (currentFrame >= frameCount) {
-                    document.getElementById('gifProgressText').textContent = '生成GIF中...';
                     gif.render();
                     return;
                 }
-
                 const time = startTime + (currentFrame / fps);
                 currentVideo.currentTime = time;
-
                 currentVideo.onseeked = function() {
                     ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
                     gif.addFrame(canvas, {delay: frameDelay, copy: true});
-                    
                     currentFrame++;
                     const progress = Math.round((currentFrame / frameCount) * 100);
                     document.getElementById('gifProgressFill').style.width = progress + '%';
                     document.getElementById('gifProgressFill').textContent = progress + '%';
-                    
                     setTimeout(captureFrame, 10);
                 };
             }
@@ -673,7 +407,6 @@
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
                 img.style.maxWidth = '100%';
-                
                 document.getElementById('gifPreview').innerHTML = '';
                 document.getElementById('gifPreview').appendChild(img);
                 document.getElementById('gifResult').classList.add('show');
@@ -692,20 +425,17 @@
             a.click();
         }
 
-        // ========== 图片格式转换 ==========
+        // 图片格式转换
         document.getElementById('imageFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(file);
                 img.style.maxWidth = '100%';
-                
                 document.getElementById('imagePreview').innerHTML = '';
                 document.getElementById('imagePreview').appendChild(img);
                 document.getElementById('imageControls').style.display = 'block';
-                document.getElementById('convertImage').disabled = false;
-                document.getElementById('imageResult').classList.remove('show');
-                
+                document.getElementById('convertImageBtn').disabled = false;
                 currentImage = img;
             }
         });
@@ -716,10 +446,8 @@
 
         function convertImage() {
             if (!currentImage) return;
-
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
             canvas.width = currentImage.naturalWidth;
             canvas.height = currentImage.naturalHeight;
             ctx.drawImage(currentImage, 0, 0);
@@ -732,6 +460,184 @@
                 const img = document.createElement('img');
                 img.src = URL.createObjectURL(blob);
                 img.style.maxWidth = '100%';
-                
                 document.getElementById('convertedImagePreview').innerHTML = '';
-                document.getElementById('convertedImagePreview').appendChild(
+                document.getElementById('convertedImagePreview').appendChild(img);
+                document.getElementById('imageResult').classList.add('show');
+            }, format, quality);
+        }
+
+        function downloadImage() {
+            if (!convertedImage) return;
+            const format = document.getElementById('imageFormat').value;
+            const ext = format.split('/')[1];
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(convertedImage);
+            a.download = 'converted.' + ext;
+            a.click();
+        }
+
+        // 图片压缩
+        document.getElementById('compressImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = '100%';
+                img.onload = () => {
+                    document.getElementById('compressPreview').innerHTML = '';
+                    document.getElementById('compressPreview').appendChild(img);
+                    document.getElementById('compressControls').style.display = 'block';
+                    document.getElementById('compressBtnEl').disabled = false;
+                };
+                currentImage = img;
+            }
+        });
+
+        document.getElementById('compressQuality').addEventListener('input', function(e) {
+            document.getElementById('compressQualityValue').textContent = e.target.value + '%';
+        });
+
+        function compressImageFunc() {
+            if (!currentImage) return;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const maxWidth = parseInt(document.getElementById('maxWidth').value);
+            const quality = parseInt(document.getElementById('compressQuality').value) / 100;
+
+            let width = currentImage.naturalWidth;
+            let height = currentImage.naturalHeight;
+
+            if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(currentImage, 0, 0, width, height);
+
+            canvas.toBlob(function(blob) {
+                compressedImageBlob = blob;
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                img.style.maxWidth = '100%';
+
+                const originalSize = document.getElementById('compressImage').files[0].size;
+                const compressedSize = blob.size;
+                const ratio = ((1 - compressedSize / originalSize) * 100).toFixed(1);
+
+                document.getElementById('compressionInfo').textContent = 
+                    `原始: ${(originalSize / 1024).toFixed(2)} KB → 压缩后: ${(compressedSize / 1024).toFixed(2)} KB (减少 ${ratio}%)`;
+
+                document.getElementById('compressedPreview').innerHTML = '';
+                document.getElementById('compressedPreview').appendChild(img);
+                document.getElementById('compressResult').classList.add('show');
+            }, 'image/jpeg', quality);
+        }
+
+        function downloadCompressed() {
+            if (!compressedImageBlob) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(compressedImageBlob);
+            a.download = 'compressed.jpg';
+            a.click();
+        }
+
+        // 图片转PDF
+        document.getElementById('pdfImages').addEventListener('change', function(e) {
+            pdfImagesList = Array.from(e.target.files);
+            displayImageList();
+            document.getElementById('createPdfBtn').disabled = false;
+        });
+
+        function displayImageList() {
+            const container = document.getElementById('imageList');
+            container.innerHTML = '';
+            pdfImagesList.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                const btn = document.createElement('button');
+                btn.className = 'remove-btn';
+                btn.textContent = '×';
+                btn.onclick = () => {
+                    pdfImagesList.splice(index, 1);
+                    displayImageList();
+                    if (pdfImagesList.length === 0) {
+                        document.getElementById('createPdfBtn').disabled = true;
+                    }
+                };
+                div.appendChild(img);
+                div.appendChild(btn);
+                container.appendChild(div);
+            });
+        }
+
+        async function createPDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('portrait');
+
+            for (let i = 0; i < pdfImagesList.length; i++) {
+                const file = pdfImagesList[i];
+                const img = await loadImageForPdf(file);
+                if (i > 0) pdf.addPage();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgRatio = img.width / img.height;
+                const pageRatio = pageWidth / pageHeight;
+
+                let width, height;
+                if (imgRatio > pageRatio) {
+                    width = pageWidth;
+                    height = pageWidth / imgRatio;
+                } else {
+                    height = pageHeight;
+                    width = pageHeight * imgRatio;
+                }
+
+                const x = (pageWidth - width) / 2;
+                const y = (pageHeight - height) / 2;
+                pdf.addImage(img, 'JPEG', x, y, width, height);
+            }
+
+            pdfDoc = pdf;
+            document.getElementById('pdfResult').classList.add('show');
+        }
+
+        function loadImageForPdf(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function downloadPDF() {
+            if (pdfDoc) pdfDoc.save('converted.pdf');
+        }
+
+        // 文字转语音
+        document.getElementById('ttsRate').addEventListener('input', function(e) {
+            document.getElementById('ttsRateValue').textContent = e.target.value + 'x';
+        });
+
+        function textToSpeech() {
+            const text = document.getElementById('ttsText').value;
+            if (!text) { alert('请输入文字'); return; }
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = document.getElementById('ttsLang').value;
+            utterance.rate = parseFloat(document.getElementById('ttsRate').value);
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function stopSpeech() {
+            window.speechSynthesis.cancel();
+        }
+    </script>
+</body>
+</html>
