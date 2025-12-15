@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>媒体格式转换工具</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,7 +19,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -33,6 +32,7 @@
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
@@ -83,6 +83,12 @@
 
         .converter-section.active {
             display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .back-btn {
@@ -139,11 +145,15 @@
             text-align: center;
         }
 
-        .preview-area img, .preview-area video {
+        .preview-area img, .preview-area video, .preview-area audio {
             max-width: 100%;
             max-height: 400px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-area audio {
+            width: 100%;
         }
 
         .controls {
@@ -157,12 +167,18 @@
             color: #333;
         }
 
-        .controls input, .controls select {
+        .controls input, .controls select, .controls textarea {
             width: 100%;
             padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
+        }
+
+        .controls textarea {
+            min-height: 150px;
+            font-family: inherit;
+            resize: vertical;
         }
 
         .convert-btn {
@@ -178,8 +194,8 @@
             transition: transform 0.3s ease;
         }
 
-        .convert-btn:hover {
-            transform: scale(1.05);
+        .convert-btn:hover:not(:disabled) {
+            transform: scale(1.02);
         }
 
         .convert-btn:disabled {
@@ -198,6 +214,7 @@
 
         .result-area.show {
             display: block;
+            animation: fadeIn 0.3s ease;
         }
 
         .download-btn {
@@ -209,6 +226,7 @@
             cursor: pointer;
             font-size: 1em;
             transition: background 0.3s ease;
+            margin: 5px;
         }
 
         .download-btn:hover {
@@ -226,6 +244,7 @@
             background: #e0e0e0;
             border-radius: 15px;
             overflow: hidden;
+            position: relative;
         }
 
         .progress-fill {
@@ -239,11 +258,87 @@
             font-weight: bold;
         }
 
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .image-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .image-item {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .image-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2em;
+            line-height: 1;
+            transition: background 0.3s ease;
+        }
+
+        .image-item .remove-btn:hover {
+            background: rgb(200, 35, 51);
+        }
+
         .footer {
             text-align: center;
             color: white;
             margin-top: 40px;
             opacity: 0.8;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #0066cc;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -251,7 +346,7 @@
     <div class="container">
         <div class="header">
             <h1>🎬 媒体格式转换工具</h1>
-            <p>视频、图片、音频格式转换，完全在浏览器中完成</p>
+            <p>视频、图片、音频、PDF格式转换，完全在浏览器中完成</p>
         </div>
 
         <div id="toolsGrid" class="tools-grid">
@@ -267,13 +362,33 @@
                 <h3>🎥 视频格式转换</h3>
                 <p>MP4、WEBM等视频格式互转</p>
             </div>
+            <div class="tool-card" onclick="showConverter('audio-converter')">
+                <h3>🎵 音频格式转换</h3>
+                <p>MP3、WAV、OGG等音频格式互转</p>
+            </div>
+            <div class="tool-card" onclick="showConverter('images-to-pdf')">
+                <h3>📄 图片转PDF</h3>
+                <p>将多张图片合并为一个PDF文件</p>
+            </div>
+            <div class="tool-card" onclick="showConverter('pdf-to-images')">
+                <h3>🖼️ PDF转图片</h3>
+                <p>将PDF的每一页转换为图片</p>
+            </div>
+            <div class="tool-card" onclick="showConverter('image-compressor')">
+                <h3>🗜️ 图片压缩</h3>
+                <p>压缩图片大小，减少文件体积</p>
+            </div>
+            <div class="tool-card" onclick="showConverter('text-to-speech')">
+                <h3>🗣️ 文字转语音</h3>
+                <p>将文字转换为语音播放</p>
+            </div>
         </div>
 
         <!-- 视频转GIF -->
         <div id="video-to-gif" class="converter-section">
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>视频转GIF</h2>
-            <div class="upload-area" id="videoUpload">
+            <div class="upload-area">
                 <p>拖放视频文件到这里或点击上传</p>
                 <input type="file" id="videoFile" accept="video/*">
                 <button class="upload-btn" onclick="document.getElementById('videoFile').click()">选择视频</button>
@@ -283,22 +398,26 @@
                 <label>起始时间（秒）:</label>
                 <input type="number" id="startTime" value="0" min="0" step="0.1">
                 <label>持续时间（秒）:</label>
-                <input type="number" id="duration" value="3" min="0.1" step="0.1">
-                <label>帧率:</label>
-                <input type="number" id="fps" value="10" min="1" max="30">
+                <input type="number" id="duration" value="3" min="0.1" max="10" step="0.1">
+                <label>帧率 (推荐10-15):</label>
+                <input type="number" id="fps" value="10" min="5" max="20">
                 <label>宽度（像素）:</label>
-                <input type="number" id="gifWidth" value="480" min="100" max="1920">
+                <input type="number" id="gifWidth" value="480" min="200" max="800">
+                <div class="info-box">
+                    <p>💡 提示: 降低帧率和分辨率可以加快转换速度并减小文件大小</p>
+                </div>
             </div>
             <button class="convert-btn" id="convertToGif" onclick="convertVideoToGif()" disabled>转换为GIF</button>
             <div class="progress" id="gifProgress">
                 <div class="progress-bar">
-                    <div class="progress-fill" id="gifProgressFill">0%</div>
+                    <div class="progress-fill" id="gifProgressFill" style="width: 0%">0%</div>
                 </div>
+                <p class="progress-text" id="gifProgressText">准备中...</p>
             </div>
             <div class="result-area" id="gifResult">
-                <h3>转换完成！</h3>
+                <h3>✅ 转换完成！</h3>
                 <div id="gifPreview"></div>
-                <button class="download-btn" onclick="downloadGif()">下载GIF</button>
+                <button class="download-btn" onclick="downloadGif()">💾 下载GIF</button>
             </div>
         </div>
 
@@ -306,7 +425,7 @@
         <div id="image-converter" class="converter-section">
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>图片格式转换</h2>
-            <div class="upload-area" id="imageUpload">
+            <div class="upload-area">
                 <p>拖放图片文件到这里或点击上传</p>
                 <input type="file" id="imageFile" accept="image/*">
                 <button class="upload-btn" onclick="document.getElementById('imageFile').click()">选择图片</button>
@@ -319,15 +438,14 @@
                     <option value="image/jpeg">JPEG</option>
                     <option value="image/webp">WEBP</option>
                 </select>
-                <label>质量 (仅JPEG/WEBP):</label>
+                <label>质量 (仅JPEG/WEBP): <span id="qualityValue">90%</span></label>
                 <input type="range" id="quality" min="1" max="100" value="90">
-                <span id="qualityValue">90%</span>
             </div>
             <button class="convert-btn" id="convertImage" onclick="convertImage()" disabled>转换图片</button>
             <div class="result-area" id="imageResult">
-                <h3>转换完成！</h3>
+                <h3>✅ 转换完成！</h3>
                 <div id="convertedImagePreview"></div>
-                <button class="download-btn" onclick="downloadImage()">下载图片</button>
+                <button class="download-btn" onclick="downloadImage()">💾 下载图片</button>
             </div>
         </div>
 
@@ -335,53 +453,166 @@
         <div id="video-converter" class="converter-section">
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>视频格式转换</h2>
+            <div class="info-box">
+                <p>⚠️ 浏览器端视频格式转换功能受限，建议使用专业工具</p>
+            </div>
             <div class="upload-area">
                 <p>拖放视频文件到这里或点击上传</p>
                 <input type="file" id="videoConvertFile" accept="video/*">
                 <button class="upload-btn" onclick="document.getElementById('videoConvertFile').click()">选择视频</button>
             </div>
             <div class="preview-area" id="videoConvertPreview"></div>
-            <div class="controls" id="videoConvertControls" style="display:none;">
-                <label>转换为:</label>
-                <select id="videoFormat">
-                    <option value="video/mp4">MP4</option>
-                    <option value="video/webm">WEBM</option>
+            <button class="convert-btn" id="convertVideo" onclick="convertVideo()" disabled>查看视频</button>
+            <div class="result-area" id="videoConvertResult">
+                <h3>视频信息</h3>
+                <div id="convertedVideoPreview"></div>
+                <button class="download-btn" onclick="downloadVideo()">💾 下载视频</button>
+            </div>
+        </div>
+
+        <!-- 音频格式转换 -->
+        <div id="audio-converter" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>音频格式转换</h2>
+            <div class="info-box">
+                <p>⚠️ 浏览器端音频格式转换功能受限，建议使用专业工具</p>
+            </div>
+            <div class="upload-area">
+                <p>拖放音频文件到这里或点击上传</p>
+                <input type="file" id="audioFile" accept="audio/*">
+                <button class="upload-btn" onclick="document.getElementById('audioFile').click()">选择音频</button>
+            </div>
+            <div class="preview-area" id="audioPreview"></div>
+            <button class="convert-btn" id="convertAudio" onclick="convertAudio()" disabled>查看音频</button>
+            <div class="result-area" id="audioResult">
+                <h3>音频信息</h3>
+                <div id="convertedAudioPreview"></div>
+                <button class="download-btn" onclick="downloadAudio()">💾 下载音频</button>
+            </div>
+        </div>
+
+        <!-- 图片转PDF -->
+        <div id="images-to-pdf" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>图片转PDF</h2>
+            <div class="upload-area">
+                <p>拖放图片文件到这里或点击上传（可选择多张）</p>
+                <input type="file" id="pdfImages" accept="image/*" multiple>
+                <button class="upload-btn" onclick="document.getElementById('pdfImages').click()">选择图片</button>
+            </div>
+            <div class="image-list" id="imageList"></div>
+            <div class="controls" id="pdfControls" style="display:none;">
+                <label>页面方向:</label>
+                <select id="pdfOrientation">
+                    <option value="portrait">竖向 (Portrait)</option>
+                    <option value="landscape">横向 (Landscape)</option>
                 </select>
             </div>
-            <button class="convert-btn" id="convertVideo" onclick="convertVideo()" disabled>转换视频</button>
-            <div class="result-area" id="videoConvertResult">
-                <h3>转换完成！</h3>
-                <div id="convertedVideoPreview"></div>
-                <button class="download-btn" onclick="downloadVideo()">下载视频</button>
+            <button class="convert-btn" id="createPdf" onclick="createPDF()" disabled>生成PDF</button>
+            <div class="result-area" id="pdfResult">
+                <h3>✅ PDF生成完成！</h3>
+                <button class="download-btn" onclick="downloadPDF()">💾 下载PDF</button>
+            </div>
+        </div>
+
+        <!-- PDF转图片 -->
+        <div id="pdf-to-images" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>PDF转图片</h2>
+            <div class="info-box">
+                <p>⚠️ PDF转图片需要PDF.js库支持，建议使用专业工具</p>
+            </div>
+            <div class="upload-area">
+                <p>拖放PDF文件到这里或点击上传</p>
+                <input type="file" id="pdfFile" accept="application/pdf">
+                <button class="upload-btn" onclick="document.getElementById('pdfFile').click()">选择PDF</button>
+            </div>
+            <div class="preview-area" id="pdfPreview"></div>
+        </div>
+
+        <!-- 图片压缩 -->
+        <div id="image-compressor" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>图片压缩</h2>
+            <div class="upload-area">
+                <p>拖放图片文件到这里或点击上传</p>
+                <input type="file" id="compressImage" accept="image/*">
+                <button class="upload-btn" onclick="document.getElementById('compressImage').click()">选择图片</button>
+            </div>
+            <div class="preview-area" id="compressPreview"></div>
+            <div class="controls" id="compressControls" style="display:none;">
+                <label>压缩质量: <span id="compressQualityValue">80%</span></label>
+                <input type="range" id="compressQuality" min="10" max="100" value="80">
+                <label>最大宽度（像素）:</label>
+                <input type="number" id="maxWidth" value="1920" min="100" max="4000">
+            </div>
+            <button class="convert-btn" id="compressBtn" onclick="compressImage()" disabled>压缩图片</button>
+            <div class="result-area" id="compressResult">
+                <h3>✅ 压缩完成！</h3>
+                <p id="compressionInfo" style="font-weight: bold; color: #28a745;"></p>
+                <div id="compressedPreview"></div>
+                <button class="download-btn" onclick="downloadCompressed()">💾 下载压缩后的图片</button>
+            </div>
+        </div>
+
+        <!-- 文字转语音 -->
+        <div id="text-to-speech" class="converter-section">
+            <button class="back-btn" onclick="showTools()">← 返回</button>
+            <h2>文字转语音</h2>
+            <div class="controls">
+                <label>输入文字:</label>
+                <textarea id="ttsText" placeholder="在此输入要转换的文字..."></textarea>
+                <label>语言:</label>
+                <select id="ttsLang">
+                    <option value="zh-CN">中文 (Chinese)</option>
+                    <option value="en-US">英语 (English)</option>
+                    <option value="ja-JP">日语 (Japanese)</option>
+                    <option value="ko-KR">韩语 (Korean)</option>
+                    <option value="es-ES">西班牙语 (Spanish)</option>
+                    <option value="fr-FR">法语 (French)</option>
+                </select>
+                <label>语速: <span id="ttsRateValue">1.0x</span></label>
+                <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            <button class="convert-btn" onclick="textToSpeech()">🎙️ 播放语音</button>
+            <button class="convert-btn" onclick="stopSpeech()" style="background: #dc3545; margin-top: 10px;">⏹️ 停止播放</button>
+            <div class="info-box">
+                <p>💡 此功能使用浏览器内置语音合成API，音质因浏览器而异</p>
             </div>
         </div>
 
         <div class="footer">
-            <p>所有转换都在您的浏览器中本地完成，文件不会上传到服务器</p>
-            <p>© 2024 媒体格式转换工具</p>
+            <p>🔒 所有转换都在您的浏览器中本地完成，文件不会上传到服务器</p>
+            <p>威软科技© 2025 媒体格式转换工具 | 隐私安全 | 开源免费</p>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         let currentVideo = null;
         let currentImage = null;
         let convertedGif = null;
         let convertedImage = null;
-        let convertedVideo = null;
+        let pdfImagesList = [];
+        let pdfDoc = null;
+        let compressedImageBlob = null;
+        let gifWorker = null;
 
         function showConverter(id) {
             document.getElementById('toolsGrid').style.display = 'none';
+            document.querySelectorAll('.converter-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            
+            // 重置结果区域
+            document.querySelectorAll('.result-area').forEach(r => r.classList.remove('show'));
         }
 
         function showTools() {
-            document.querySelectorAll('.converter-section').forEach(section => {
-                section.classList.remove('active');
-            });
+            document.querySelectorAll('.converter-section').forEach(s => s.classList.remove('active'));
             document.getElementById('toolsGrid').style.display = 'grid';
         }
 
-        // 视频转GIF功能
+        // ============ 视频转GIF ============
         document.getElementById('videoFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -389,21 +620,27 @@
                 video.src = URL.createObjectURL(file);
                 video.controls = true;
                 video.style.maxWidth = '100%';
+                video.crossOrigin = 'anonymous';
                 
                 document.getElementById('videoPreview').innerHTML = '';
                 document.getElementById('videoPreview').appendChild(video);
                 document.getElementById('gifControls').style.display = 'block';
                 document.getElementById('convertToGif').disabled = false;
+                document.getElementById('gifResult').classList.remove('show');
                 
                 currentVideo = video;
                 video.addEventListener('loadedmetadata', function() {
-                    document.getElementById('duration').max = video.duration;
+                    const maxDuration = Math.min(video.duration, 10);
+                    document.getElementById('duration').max = maxDuration;
                     document.getElementById('startTime').max = video.duration;
+                    if (parseFloat(document.getElementById('duration').value) > maxDuration) {
+                        document.getElementById('duration').value = Math.min(3, maxDuration);
+                    }
                 });
             }
         });
 
-        function convertVideoToGif() {
+        async function convertVideoToGif() {
             if (!currentVideo) return;
 
             const startTime = parseFloat(document.getElementById('startTime').value);
@@ -413,191 +650,74 @@
 
             document.getElementById('gifProgress').style.display = 'block';
             document.getElementById('convertToGif').disabled = true;
+            document.getElementById('gifProgressText').textContent = '正在捕获视频帧...';
 
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
             
             const videoAspect = currentVideo.videoWidth / currentVideo.videoHeight;
             canvas.width = width;
-            canvas.height = width / videoAspect;
+            canvas.height = Math.round(width / videoAspect);
 
-            const gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: canvas.width,
-                height: canvas.height,
-                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
-            });
+            const frameCount = Math.min(Math.floor(duration * fps), 100); // 最多100帧
+            const frameDelay = Math.round(1000 / fps);
+            const frames = [];
 
-            const frameCount = Math.floor(duration * fps);
-            const frameDelay = 1000 / fps;
-            let currentFrame = 0;
-
-            function captureFrame() {
-                if (currentFrame >= frameCount) {
-                    gif.render();
-                    return;
-                }
-
-                const time = startTime + (currentFrame / fps);
+            // 捕获所有帧
+            for (let i = 0; i < frameCount; i++) {
+                const time = startTime + (i / fps);
                 currentVideo.currentTime = time;
+                
+                await new Promise(resolve => {
+                    currentVideo.onseeked = resolve;
+                });
 
-                currentVideo.onseeked = function() {
-                    ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
-                    gif.addFrame(canvas, {delay: frameDelay, copy: true});
-                    
-                    currentFrame++;
-                    const progress = Math.round((currentFrame / frameCount) * 100);
-                    document.getElementById('gifProgressFill').style.width = progress + '%';
-                    document.getElementById('gifProgressFill').textContent = progress + '%';
-                    
-                    setTimeout(captureFrame, 10);
-                };
+                ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                frames.push(imageData);
+
+                const progress = Math.round((i / frameCount) * 50);
+                document.getElementById('gifProgressFill').style.width = progress + '%';
+                document.getElementById('gifProgressFill').textContent = progress + '%';
             }
 
-            gif.on('finished', function(blob) {
-                convertedGif = blob;
+            // 使用简化的GIF编码
+            document.getElementById('gifProgressText').textContent = '正在生成GIF...';
+            
+            try {
+                const gif = await createGifFromFrames(frames, frameDelay, canvas.width, canvas.height, (progress) => {
+                    const totalProgress = 50 + Math.round(progress * 50);
+                    document.getElementById('gifProgressFill').style.width = totalProgress + '%';
+                    document.getElementById('gifProgressFill').textContent = totalProgress + '%';
+                });
+
+                convertedGif = gif;
                 const img = document.createElement('img');
-                img.src = URL.createObjectURL(blob);
+                img.src = URL.createObjectURL(gif);
                 img.style.maxWidth = '100%';
+                img.style.borderRadius = '10px';
                 
                 document.getElementById('gifPreview').innerHTML = '';
                 document.getElementById('gifPreview').appendChild(img);
                 document.getElementById('gifResult').classList.add('show');
                 document.getElementById('gifProgress').style.display = 'none';
                 document.getElementById('convertToGif').disabled = false;
-            });
-
-            captureFrame();
-        }
-
-        function downloadGif() {
-            if (!convertedGif) return;
-            const url = URL.createObjectURL(convertedGif);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'converted.gif';
-            a.click();
-        }
-
-        // 图片格式转换功能
-        document.getElementById('imageFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.style.maxWidth = '100%';
-                
-                document.getElementById('imagePreview').innerHTML = '';
-                document.getElementById('imagePreview').appendChild(img);
-                document.getElementById('imageControls').style.display = 'block';
-                document.getElementById('convertImage').disabled = false;
-                
-                currentImage = img;
+                document.getElementById('gifProgressText').textContent = '完成！';
+            } catch (error) {
+                alert('GIF生成失败: ' + error.message);
+                document.getElementById('gifProgress').style.display = 'none';
+                document.getElementById('convertToGif').disabled = false;
             }
-        });
-
-        document.getElementById('quality').addEventListener('input', function(e) {
-            document.getElementById('qualityValue').textContent = e.target.value + '%';
-        });
-
-        function convertImage() {
-            if (!currentImage) return;
-
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = currentImage.naturalWidth;
-            canvas.height = currentImage.naturalHeight;
-            ctx.drawImage(currentImage, 0, 0);
-
-            const format = document.getElementById('imageFormat').value;
-            const quality = document.getElementById('quality').value / 100;
-
-            canvas.toBlob(function(blob) {
-                convertedImage = blob;
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(blob);
-                img.style.maxWidth = '100%';
-                
-                document.getElementById('convertedImagePreview').innerHTML = '';
-                document.getElementById('convertedImagePreview').appendChild(img);
-                document.getElementById('imageResult').classList.add('show');
-            }, format, quality);
         }
 
-        function downloadImage() {
-            if (!convertedImage) return;
-            const format = document.getElementById('imageFormat').value;
-            const ext = format.split('/')[1];
-            const url = URL.createObjectURL(convertedImage);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'converted.' + ext;
-            a.click();
-        }
+        // 简化的GIF编码函数
+        async function createGifFromFrames(frames, delay, width, height, onProgress) {
+            // 使用gifshot库的简化版本
+            const encoder = new GIFEncoder(width, height);
+            encoder.setDelay(delay);
+            encoder.setRepeat(0);
+            encoder.start();
 
-        // 视频格式转换功能（基础版本 - 实际只能重新编码当前格式）
-        document.getElementById('videoConvertFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.controls = true;
-                video.style.maxWidth = '100%';
-                
-                document.getElementById('videoConvertPreview').innerHTML = '';
-                document.getElementById('videoConvertPreview').appendChild(video);
-                document.getElementById('videoConvertControls').style.display = 'block';
-                document.getElementById('convertVideo').disabled = false;
-                
-                convertedVideo = file; // 简化版：直接使用原文件
-            }
-        });
-
-        function convertVideo() {
-            alert('视频格式转换需要后端支持或使用FFmpeg.js库。这里提供下载原视频的功能。');
-            document.getElementById('videoConvertResult').classList.add('show');
-            
-            const video = document.createElement('video');
-            video.src = URL.createObjectURL(convertedVideo);
-            video.controls = true;
-            video.style.maxWidth = '100%';
-            document.getElementById('convertedVideoPreview').innerHTML = '';
-            document.getElementById('convertedVideoPreview').appendChild(video);
-        }
-
-        function downloadVideo() {
-            if (!convertedVideo) return;
-            const url = URL.createObjectURL(convertedVideo);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'video.' + document.getElementById('videoFormat').value.split('/')[1];
-            a.click();
-        }
-
-        // 拖放功能
-        document.querySelectorAll('.upload-area').forEach(area => {
-            area.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                this.classList.add('dragover');
-            });
-
-            area.addEventListener('dragleave', function() {
-                this.classList.remove('dragover');
-            });
-
-            area.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('dragover');
-                
-                const input = this.querySelector('input[type="file"]');
-                if (input && e.dataTransfer.files.length > 0) {
-                    input.files = e.dataTransfer.files;
-                    input.dispatchEvent(new Event('change'));
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+            for (let i = 0; i < frames.length; i++) {
+                encoder.addFrame(frames[i].data, true);
+                if (onProgress) onProgress(i
