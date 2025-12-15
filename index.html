@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>媒体格式转换工具</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -244,7 +246,6 @@
             background: #e0e0e0;
             border-radius: 15px;
             overflow: hidden;
-            position: relative;
         }
 
         .progress-fill {
@@ -297,7 +298,6 @@
             height: 30px;
             cursor: pointer;
             font-size: 1.2em;
-            line-height: 1;
             transition: background 0.3s ease;
         }
 
@@ -310,21 +310,6 @@
             color: white;
             margin-top: 40px;
             opacity: 0.8;
-        }
-
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .info-box {
@@ -399,12 +384,12 @@
                 <input type="number" id="startTime" value="0" min="0" step="0.1">
                 <label>持续时间（秒）:</label>
                 <input type="number" id="duration" value="3" min="0.1" max="10" step="0.1">
-                <label>帧率 (推荐10-15):</label>
-                <input type="number" id="fps" value="10" min="5" max="20">
+                <label>帧率 (推荐10):</label>
+                <input type="number" id="fps" value="10" min="5" max="15">
                 <label>宽度（像素）:</label>
                 <input type="number" id="gifWidth" value="480" min="200" max="800">
                 <div class="info-box">
-                    <p>💡 提示: 降低帧率和分辨率可以加快转换速度并减小文件大小</p>
+                    <p>💡 降低帧率和分辨率可以加快转换速度</p>
                 </div>
             </div>
             <button class="convert-btn" id="convertToGif" onclick="convertVideoToGif()" disabled>转换为GIF</button>
@@ -454,7 +439,7 @@
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>视频格式转换</h2>
             <div class="info-box">
-                <p>⚠️ 浏览器端视频格式转换功能受限，建议使用专业工具</p>
+                <p>⚠️ 浏览器端视频格式转换受限，此处提供预览和下载功能</p>
             </div>
             <div class="upload-area">
                 <p>拖放视频文件到这里或点击上传</p>
@@ -475,7 +460,7 @@
             <button class="back-btn" onclick="showTools()">← 返回</button>
             <h2>音频格式转换</h2>
             <div class="info-box">
-                <p>⚠️ 浏览器端音频格式转换功能受限，建议使用专业工具</p>
+                <p>⚠️ 浏览器端音频格式转换受限，此处提供预览和下载功能</p>
             </div>
             <div class="upload-area">
                 <p>拖放音频文件到这里或点击上传</p>
@@ -504,8 +489,8 @@
             <div class="controls" id="pdfControls" style="display:none;">
                 <label>页面方向:</label>
                 <select id="pdfOrientation">
-                    <option value="portrait">竖向 (Portrait)</option>
-                    <option value="landscape">横向 (Landscape)</option>
+                    <option value="portrait">竖向</option>
+                    <option value="landscape">横向</option>
                 </select>
             </div>
             <button class="convert-btn" id="createPdf" onclick="createPDF()" disabled>生成PDF</button>
@@ -527,7 +512,6 @@
                 <input type="file" id="pdfFile" accept="application/pdf">
                 <button class="upload-btn" onclick="document.getElementById('pdfFile').click()">选择PDF</button>
             </div>
-            <div class="preview-area" id="pdfPreview"></div>
         </div>
 
         <!-- 图片压缩 -->
@@ -551,7 +535,7 @@
                 <h3>✅ 压缩完成！</h3>
                 <p id="compressionInfo" style="font-weight: bold; color: #28a745;"></p>
                 <div id="compressedPreview"></div>
-                <button class="download-btn" onclick="downloadCompressed()">💾 下载压缩后的图片</button>
+                <button class="download-btn" onclick="downloadCompressed()">💾 下载压缩图片</button>
             </div>
         </div>
 
@@ -564,12 +548,10 @@
                 <textarea id="ttsText" placeholder="在此输入要转换的文字..."></textarea>
                 <label>语言:</label>
                 <select id="ttsLang">
-                    <option value="zh-CN">中文 (Chinese)</option>
-                    <option value="en-US">英语 (English)</option>
-                    <option value="ja-JP">日语 (Japanese)</option>
-                    <option value="ko-KR">韩语 (Korean)</option>
-                    <option value="es-ES">西班牙语 (Spanish)</option>
-                    <option value="fr-FR">法语 (French)</option>
+                    <option value="zh-CN">中文</option>
+                    <option value="en-US">英语</option>
+                    <option value="ja-JP">日语</option>
+                    <option value="ko-KR">韩语</option>
                 </select>
                 <label>语速: <span id="ttsRateValue">1.0x</span></label>
                 <input type="range" id="ttsRate" min="0.5" max="2" step="0.1" value="1">
@@ -577,7 +559,7 @@
             <button class="convert-btn" onclick="textToSpeech()">🎙️ 播放语音</button>
             <button class="convert-btn" onclick="stopSpeech()" style="background: #dc3545; margin-top: 10px;">⏹️ 停止播放</button>
             <div class="info-box">
-                <p>💡 此功能使用浏览器内置语音合成API，音质因浏览器而异</p>
+                <p>💡 使用浏览器内置语音合成，效果因浏览器而异</p>
             </div>
         </div>
 
@@ -587,23 +569,20 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         let currentVideo = null;
         let currentImage = null;
         let convertedGif = null;
         let convertedImage = null;
+        let convertedVideo = null;
         let pdfImagesList = [];
         let pdfDoc = null;
         let compressedImageBlob = null;
-        let gifWorker = null;
 
         function showConverter(id) {
             document.getElementById('toolsGrid').style.display = 'none';
             document.querySelectorAll('.converter-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            
-            // 重置结果区域
             document.querySelectorAll('.result-area').forEach(r => r.classList.remove('show'));
         }
 
@@ -612,7 +591,7 @@
             document.getElementById('toolsGrid').style.display = 'grid';
         }
 
-        // ============ 视频转GIF ============
+        // ========== 视频转GIF ==========
         document.getElementById('videoFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -620,7 +599,6 @@
                 video.src = URL.createObjectURL(file);
                 video.controls = true;
                 video.style.maxWidth = '100%';
-                video.crossOrigin = 'anonymous';
                 
                 document.getElementById('videoPreview').innerHTML = '';
                 document.getElementById('videoPreview').appendChild(video);
@@ -630,17 +608,13 @@
                 
                 currentVideo = video;
                 video.addEventListener('loadedmetadata', function() {
-                    const maxDuration = Math.min(video.duration, 10);
-                    document.getElementById('duration').max = maxDuration;
+                    document.getElementById('duration').max = Math.min(video.duration, 10);
                     document.getElementById('startTime').max = video.duration;
-                    if (parseFloat(document.getElementById('duration').value) > maxDuration) {
-                        document.getElementById('duration').value = Math.min(3, maxDuration);
-                    }
                 });
             }
         });
 
-        async function convertVideoToGif() {
+        function convertVideoToGif() {
             if (!currentVideo) return;
 
             const startTime = parseFloat(document.getElementById('startTime').value);
@@ -650,74 +624,114 @@
 
             document.getElementById('gifProgress').style.display = 'block';
             document.getElementById('convertToGif').disabled = true;
-            document.getElementById('gifProgressText').textContent = '正在捕获视频帧...';
+            document.getElementById('gifProgressText').textContent = '正在处理...';
 
             const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            const ctx = canvas.getContext('2d');
             
             const videoAspect = currentVideo.videoWidth / currentVideo.videoHeight;
             canvas.width = width;
             canvas.height = Math.round(width / videoAspect);
 
-            const frameCount = Math.min(Math.floor(duration * fps), 100); // 最多100帧
-            const frameDelay = Math.round(1000 / fps);
-            const frames = [];
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: canvas.width,
+                height: canvas.height,
+                workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+            });
 
-            // 捕获所有帧
-            for (let i = 0; i < frameCount; i++) {
-                const time = startTime + (i / fps);
+            const frameCount = Math.floor(duration * fps);
+            const frameDelay = 1000 / fps;
+            let currentFrame = 0;
+
+            function captureFrame() {
+                if (currentFrame >= frameCount) {
+                    document.getElementById('gifProgressText').textContent = '生成GIF中...';
+                    gif.render();
+                    return;
+                }
+
+                const time = startTime + (currentFrame / fps);
                 currentVideo.currentTime = time;
-                
-                await new Promise(resolve => {
-                    currentVideo.onseeked = resolve;
-                });
 
-                ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                frames.push(imageData);
-
-                const progress = Math.round((i / frameCount) * 50);
-                document.getElementById('gifProgressFill').style.width = progress + '%';
-                document.getElementById('gifProgressFill').textContent = progress + '%';
+                currentVideo.onseeked = function() {
+                    ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
+                    gif.addFrame(canvas, {delay: frameDelay, copy: true});
+                    
+                    currentFrame++;
+                    const progress = Math.round((currentFrame / frameCount) * 100);
+                    document.getElementById('gifProgressFill').style.width = progress + '%';
+                    document.getElementById('gifProgressFill').textContent = progress + '%';
+                    
+                    setTimeout(captureFrame, 10);
+                };
             }
 
-            // 使用简化的GIF编码
-            document.getElementById('gifProgressText').textContent = '正在生成GIF...';
-            
-            try {
-                const gif = await createGifFromFrames(frames, frameDelay, canvas.width, canvas.height, (progress) => {
-                    const totalProgress = 50 + Math.round(progress * 50);
-                    document.getElementById('gifProgressFill').style.width = totalProgress + '%';
-                    document.getElementById('gifProgressFill').textContent = totalProgress + '%';
-                });
-
-                convertedGif = gif;
+            gif.on('finished', function(blob) {
+                convertedGif = blob;
                 const img = document.createElement('img');
-                img.src = URL.createObjectURL(gif);
+                img.src = URL.createObjectURL(blob);
                 img.style.maxWidth = '100%';
-                img.style.borderRadius = '10px';
                 
                 document.getElementById('gifPreview').innerHTML = '';
                 document.getElementById('gifPreview').appendChild(img);
                 document.getElementById('gifResult').classList.add('show');
                 document.getElementById('gifProgress').style.display = 'none';
                 document.getElementById('convertToGif').disabled = false;
-                document.getElementById('gifProgressText').textContent = '完成！';
-            } catch (error) {
-                alert('GIF生成失败: ' + error.message);
-                document.getElementById('gifProgress').style.display = 'none';
-                document.getElementById('convertToGif').disabled = false;
-            }
+            });
+
+            captureFrame();
         }
 
-        // 简化的GIF编码函数
-        async function createGifFromFrames(frames, delay, width, height, onProgress) {
-            // 使用gifshot库的简化版本
-            const encoder = new GIFEncoder(width, height);
-            encoder.setDelay(delay);
-            encoder.setRepeat(0);
-            encoder.start();
+        function downloadGif() {
+            if (!convertedGif) return;
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(convertedGif);
+            a.download = 'converted.gif';
+            a.click();
+        }
 
-            for (let i = 0; i < frames.length; i++) {
-                encoder.addFrame(frames[i].data, true);
-                if (onProgress) onProgress(i
+        // ========== 图片格式转换 ==========
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = '100%';
+                
+                document.getElementById('imagePreview').innerHTML = '';
+                document.getElementById('imagePreview').appendChild(img);
+                document.getElementById('imageControls').style.display = 'block';
+                document.getElementById('convertImage').disabled = false;
+                document.getElementById('imageResult').classList.remove('show');
+                
+                currentImage = img;
+            }
+        });
+
+        document.getElementById('quality').addEventListener('input', function(e) {
+            document.getElementById('qualityValue').textContent = e.target.value + '%';
+        });
+
+        function convertImage() {
+            if (!currentImage) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = currentImage.naturalWidth;
+            canvas.height = currentImage.naturalHeight;
+            ctx.drawImage(currentImage, 0, 0);
+
+            const format = document.getElementById('imageFormat').value;
+            const quality = document.getElementById('quality').value / 100;
+
+            canvas.toBlob(function(blob) {
+                convertedImage = blob;
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(blob);
+                img.style.maxWidth = '100%';
+                
+                document.getElementById('convertedImagePreview').innerHTML = '';
+                document.getElementById('convertedImagePreview').appendChild(
