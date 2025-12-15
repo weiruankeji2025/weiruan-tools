@@ -1,62 +1,275 @@
-# 🛠️ weiruan Tools - 纯前端在线工具箱
+# 威软Toolbox 🎬
 
-一个基于现代浏览器技术构建的在线工具集合。无需上传文件到服务器，所有处理均在用户浏览器本地完成，安全、快速且保护隐私。
+一个强大的在线媒体格式转换工具，完全在浏览器中运行，无需上传文件到服务器，保护您的隐私安全。
 
-[👉 在线体验 Live Demo](https://你的用户名.github.io/你的仓库名/)
-## ✨ 功能特性 (Features)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
-### 1. 🖼️ 图片格式转换 (Image Converter)
-- **JPG 转 PNG**：将 JPEG 图片转换为无损 PNG 格式。
-- **技术原理**：利用 HTML5 Canvas 进行像素重绘与导出。
-- **特点**：极速转换，无流量消耗。
+## 📸 预览截图
 
-### 2. 🎬 视频转动图 (Video to GIF)
-- **MP4/WebM 转 GIF**：将短视频转换为 GIF 动图。
-- **自定义参数**：自动压缩帧率 (10fps) 和分辨率，优化生成的 GIF 体积。
-- **技术原理**：基于 **WebAssembly** 技术的 `FFmpeg.wasm` 核心。
-- **特点**：支持复杂视频编码，完全本地运行。
+### 主界面
+![主界面](./screenshots/home.png)
+*简洁美观的主界面，8个实用工具一目了然*
 
-## 🛠️ 技术栈 (Tech Stack)
+### 视频转GIF
+![视频转GIF](./screenshots/video-to-gif.png)
+*支持自定义帧率、分辨率，实时显示转换进度*
 
-- **核心语言**：HTML5, CSS3, JavaScript (ES6+)
-- **视频处理**：[FFmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
-- **跨域隔离**：[coi-serviceworker](https://github.com/gzuidhof/coi-serviceworker) (用于开启 SharedArrayBuffer 支持)
-- **样式设计**：原生 CSS (Flexbox 布局，响应式设计)
+### 图片格式转换
+![图片格式转换](./screenshots/image-convert.png)
+*支持PNG、JPEG、WEBP格式互转，可调节质量*
 
-## 📂 项目结构
+### 图片压缩
+![图片压缩](./screenshots/image-compress.png)
+*智能压缩，显示压缩前后对比*
 
-```text
-.
-├── index.html               # 图片转换工具 (主页)
-├── video.html               # 视频转 GIF 工具
-├── style.css                # 全局通用样式
-├── coi-serviceworker.min.js # 跨域隔离脚本 (FFmpeg 必需)
-└── README.md                # 项目说明文档
+### 图片转PDF
+![图片转PDF](./screenshots/images-to-pdf.png)
+*批量上传图片，一键生成PDF文档*
 
-🚀 如何在本地运行 (Development)
-由于视频转换功能使用了 SharedArrayBuffer，浏览器出于安全限制，要求必须在 HTTPS 或 localhost 环境下，且具备特定的响应头才能运行。你不能直接双击 html 文件打开。
+### 文字转语音
+![文字转语音](./screenshots/text-to-speech.png)
+*多语言支持，可调节语速*
 
-克隆仓库
+## ✨ 功能特性
 
-Bash
+### 🎥 视频处理
+- **视频转GIF** - 将MP4、WEBM等视频文件转换为GIF动图
+  - 自定义起始时间和持续时间
+  - 可调节帧率（5-15 fps）
+  - 自定义输出宽度（200-800px）
+  - 实时进度显示
 
-git clone [https://github.com/你的用户名/你的仓库名.git](https://github.com/你的用户名/你的仓库名.git)
-启动本地服务器 如果你使用 VS Code，推荐安装插件 Live Server。
+### 🖼️ 图片处理
+- **图片格式转换** - JPG、PNG、WEBP等格式互转
+  - 支持质量调节（1-100%）
+  - 保持原始图片质量
+  
+- **图片压缩** - 减小图片文件大小
+  - 可调节压缩质量
+  - 自定义最大宽度
+  - 显示压缩比例和文件大小对比
 
-右键点击 index.html 或 video.html
+### 📄 文档处理
+- **图片转PDF** - 将多张图片合并为一个PDF文件
+  - 支持批量添加图片
+  - 可自由调整图片顺序
+  - 支持竖向/横向布局
 
-选择 Open with Live Server
+### 🗣️ 语音处理
+- **文字转语音** - 使用浏览器内置TTS引擎
+  - 支持多种语言（中文、英语、日语、韩语等）
+  - 可调节语速（0.5x - 2x）
+  - 实时播放预览
 
-❓ 常见问题 (FAQ)
-Q: 为什么视频转换一直提示 "SharedArrayBuffer is not defined"？ A: 这是因为浏览器安全策略限制。请确保：
+## 🚀 快速开始
 
-项目目录下存在 coi-serviceworker.min.js 文件且内容正确。
+### 在线使用
+直接访问部署好的网站即可使用，无需安装任何软件。
 
-你是通过 http://localhost 或 https:// (如 GitHub Pages) 访问的，而不是 file://。
+### 本地部署
 
-如果刚刚部署，请尝试 Ctrl + F5 强制刷新以清除旧缓存。
+1. **克隆仓库**
+```bash
+git clone https://github.com/your-username/weiruan-toolbox.git
+cd weiruan-toolbox
+```
 
-Q: 文件会被上传到服务器吗？ A: 不会。所有代码都在你的浏览器中运行。图片和视频处理过程完全在本地（Client-side），即便断网也能使用（只要核心库已加载）。
+2. **直接打开**
+```bash
+# 使用任何现代浏览器打开 index.html
+open index.html  # macOS
+start index.html # Windows
+xdg-open index.html # Linux
+```
 
-📄 License
-MIT © 2025 Your Name
+### GitHub Pages 部署
+
+1. Fork 本仓库到你的 GitHub 账号
+2. 进入仓库设置 (Settings)
+3. 找到 Pages 选项
+4. Source 选择 `main` 分支
+5. 点击 Save
+6. 访问 `https://your-username.github.io/weiruan-toolbox`
+
+## 📦 技术栈
+
+- **纯HTML + CSS + JavaScript** - 无需任何构建工具
+- **第三方库**：
+  - [gifshot](https://github.com/yahoo/gifshot) - GIF 生成
+  - [jsPDF](https://github.com/parallax/jsPDF) - PDF 生成
+- **Web APIs**：
+  - Canvas API - 图片处理
+  - Web Speech API - 文字转语音
+  - File API - 文件读取
+
+## 📁 项目结构
+
+```
+weiruan-toolbox/
+├── index.html          # 主页面文件
+├── README.md           # 项目说明文档
+├── LICENSE            # 开源协议
+└── screenshots/       # 截图文件夹
+    ├── home.png
+    ├── video-to-gif.png
+    ├── image-convert.png
+    ├── image-compress.png
+    ├── images-to-pdf.png
+    └── text-to-speech.png
+```
+
+## 💡 使用说明
+
+### 视频转GIF
+1. 点击"视频转GIF"卡片
+2. 选择或拖放视频文件
+3. 设置起始时间、持续时间、帧率和宽度
+4. 点击"转换为GIF"
+5. 等待处理完成后下载
+
+**建议参数：**
+- 持续时间：1-5秒
+- 帧率：10 fps（流畅与文件大小的平衡）
+- 宽度：480px（适合大多数用途）
+
+### 图片格式转换
+1. 点击"图片格式转换"卡片
+2. 上传图片
+3. 选择目标格式（PNG/JPEG/WEBP）
+4. 调整质量（仅JPEG/WEBP）
+5. 点击"转换图片"并下载
+
+### 图片压缩
+1. 点击"图片压缩"卡片
+2. 上传需要压缩的图片
+3. 调整压缩质量和最大宽度
+4. 点击"压缩图片"
+5. 查看压缩效果和下载
+
+### 图片转PDF
+1. 点击"图片转PDF"卡片
+2. 选择多张图片（支持批量上传）
+3. 可以删除不需要的图片
+4. 点击"生成PDF"并下载
+
+### 文字转语音
+1. 点击"文字转语音"卡片
+2. 输入要转换的文字
+3. 选择语言和调整语速
+4. 点击"播放语音"试听
+5. 可以随时点击"停止"按钮
+
+## 🔒 隐私保护
+
+- ✅ **完全本地处理** - 所有转换都在浏览器中完成
+- ✅ **零服务器上传** - 文件不会离开您的设备
+- ✅ **无数据收集** - 不记录任何用户信息
+- ✅ **开源透明** - 代码完全开源，可审查
+
+## 🌐 浏览器兼容性
+
+| 浏览器 | 支持版本 |
+|--------|---------|
+| Chrome | ✅ 90+ |
+| Firefox | ✅ 88+ |
+| Safari | ✅ 14+ |
+| Edge | ✅ 90+ |
+| Opera | ✅ 76+ |
+
+**注意：** 不同浏览器的文字转语音效果可能有差异。
+
+## ⚠️ 注意事项
+
+1. **视频转GIF**：
+   - 建议持续时间不超过10秒
+   - 帧率越高，文件越大
+   - 降低分辨率可以减小文件大小
+
+2. **图片压缩**：
+   - 压缩是有损的，会降低图片质量
+   - 建议保留原始文件备份
+
+3. **文字转语音**：
+   - 使用浏览器内置引擎，音质因浏览器而异
+   - 某些语言可能需要系统支持
+
+## 🛠️ 常见问题
+
+### Q: 为什么视频转GIF卡在100%？
+A: 可能是视频时间过长或帧率过高，建议：
+- 减少持续时间到3秒以内
+- 降低帧率到10或更低
+- 降低输出宽度到480px
+
+### Q: 支持哪些视频格式？
+A: 支持浏览器能播放的所有格式，通常包括MP4、WEBM、OGG等。
+
+### Q: 图片转PDF有大小限制吗？
+A: 没有硬性限制，但图片过大或过多可能导致浏览器卡顿。
+
+### Q: 可以离线使用吗？
+A: 首次加载后，大部分功能可以离线使用，但需要提前加载外部库。
+
+## 📝 更新日志
+
+### v1.0.0 (2025-12-15)
+- ✨ 初始版本发布
+- 🎥 视频转GIF功能
+- 🖼️ 图片格式转换功能
+- 🗜️ 图片压缩功能
+- 📄 图片转PDF功能
+- 🗣️ 文字转语音功能
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+## 📄 开源协议
+
+本项目采用 MIT 协议开源。
+
+```
+MIT License
+
+Copyright (c) 2025 威软科技
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## 👨‍💻 关于
+
+**威软科技 © 2025**
+
+一个致力于开发实用、安全、开源工具的技术团队。
+
+---
+
+⭐ 如果这个项目对你有帮助，请给我们一个 Star！
+
+🐛 发现 Bug？[提交 Issue](https://github.com/your-username/weiruan-toolbox/issues)
+
+💡 有新想法？[讨论区见](https://github.com/your-username/weiruan-toolbox/discussions)
