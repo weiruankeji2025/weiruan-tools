@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>媒体格式转换工具</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gifshot@0.4.5/dist/gifshot.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -365,6 +365,7 @@
 
             document.getElementById('gifProgress').style.display = 'block';
             document.getElementById('convertToGif').disabled = true;
+            document.getElementById('gifProgressFill').textContent = '正在捕获帧...';
 
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -373,7 +374,7 @@
             canvas.height = Math.round(width / videoAspect);
 
             const frameCount = Math.min(Math.floor(duration * fps), 100);
-            const frames = [];
+            const images = [];
 
             // 捕获所有帧
             for (let i = 0; i < frameCount; i++) {
@@ -385,71 +386,47 @@
                 });
 
                 ctx.drawImage(currentVideo, 0, 0, canvas.width, canvas.height);
-                
-                // 转换为blob
-                const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/png');
-                });
-                frames.push(blob);
+                images.push(canvas.toDataURL('image/png'));
 
-                const progress = Math.round(((i + 1) / frameCount) * 50);
+                const progress = Math.round(((i + 1) / frameCount) * 100);
                 document.getElementById('gifProgressFill').style.width = progress + '%';
-                document.getElementById('gifProgressFill').textContent = progress + '%';
+                document.getElementById('gifProgressFill').textContent = `捕获帧 ${progress}%`;
             }
 
-            // 使用GIF.js生成
+            // 使用gifshot生成GIF
             document.getElementById('gifProgressFill').textContent = '生成GIF中...';
             
-            try {
-                const gif = new GIF({
-                    workers: 2,
-                    quality: 10,
-                    width: canvas.width,
-                    height: canvas.height,
-                    workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js',
-                    background: '#fff'
-                });
-
-                const frameDelay = Math.round(1000 / fps);
-
-                for (let i = 0; i < frames.length; i++) {
-                    const img = await createImageBitmap(frames[i]);
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = canvas.height;
-                    const tempCtx = tempCanvas.getContext('2d');
-                    tempCtx.drawImage(img, 0, 0);
-                    gif.addFrame(tempCtx, {delay: frameDelay, copy: true});
-                    
-                    const progress = 50 + Math.round(((i + 1) / frames.length) * 30);
-                    document.getElementById('gifProgressFill').style.width = progress + '%';
-                }
-
-                gif.on('finished', function(blob) {
-                    convertedGif = blob;
-                    const resultImg = document.createElement('img');
-                    resultImg.src = URL.createObjectURL(blob);
-                    resultImg.style.maxWidth = '100%';
-                    document.getElementById('gifPreview').innerHTML = '';
-                    document.getElementById('gifPreview').appendChild(resultImg);
-                    document.getElementById('gifResult').classList.add('show');
+            gifshot.createGIF({
+                images: images,
+                gifWidth: canvas.width,
+                gifHeight: canvas.height,
+                interval: 1 / fps,
+                numFrames: frameCount,
+                frameDuration: 1,
+                sampleInterval: 10,
+                numWorkers: 2
+            }, function(obj) {
+                if (!obj.error) {
+                    // 将base64转换为blob
+                    fetch(obj.image)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            convertedGif = blob;
+                            const img = document.createElement('img');
+                            img.src = obj.image;
+                            img.style.maxWidth = '100%';
+                            document.getElementById('gifPreview').innerHTML = '';
+                            document.getElementById('gifPreview').appendChild(img);
+                            document.getElementById('gifResult').classList.add('show');
+                            document.getElementById('gifProgress').style.display = 'none';
+                            document.getElementById('convertToGif').disabled = false;
+                        });
+                } else {
+                    alert('GIF生成失败，请尝试减少持续时间或帧率');
                     document.getElementById('gifProgress').style.display = 'none';
                     document.getElementById('convertToGif').disabled = false;
-                });
-
-                gif.on('progress', function(p) {
-                    const progress = 80 + Math.round(p * 20);
-                    document.getElementById('gifProgressFill').style.width = progress + '%';
-                    document.getElementById('gifProgressFill').textContent = '最后处理 ' + Math.round(p * 100) + '%';
-                });
-
-                gif.render();
-
-            } catch (error) {
-                alert('GIF生成失败: ' + error.message + '\n建议: 减少持续时间或降低帧率');
-                document.getElementById('gifProgress').style.display = 'none';
-                document.getElementById('convertToGif').disabled = false;
-            }
+                }
+            });
         }
 
         function downloadGif() {
